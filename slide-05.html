@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6月访店 — 门店风险地图 & 品质×差评关联</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../echarts.min.js"></script>
+</head>
+<body class="slide-page">
+    <div class="slide">
+        <div class="slide-header">
+            <h1 class="slide-title">门店风险地图 · 品质×差评关联</h1>
+            <p class="slide-subtitle">评价明细表8,719条 + 海康云眸115,808条 交叉分析 · 品质问题→差评体验的因果链</p>
+        </div>
+
+        <div class="slide-content" style="overflow-y:auto;padding-right:0.3rem;">
+            <!-- 第1行：高风险门店排行（可点击下钻） -->
+            <div class="insights-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 0.5rem;">
+                <div class="insight-card accent-red" style="cursor:pointer; position:relative;" onclick="openModal('北京西直门凯德店')">
+                    <div class="insight-title" style="font-size:0.75rem;">🔴 北京西直门凯德店</div>
+                    <div class="insight-text" style="font-size:0.65rem;">
+                        品质合格率 <b style="color:var(--accent-red)">33.3%</b> · 1/3月合格<br/>
+                        品质10类问题 · 深访29次不合格<br/>
+                        差评率 <b style="color:var(--accent-red)">41.5%</b> · 27条差评
+                    </div>
+                    <div style="position:absolute;bottom:4px;right:6px;font-size:0.55rem;color:var(--text-muted);">👆 点击详情</div>
+                </div>
+                <div class="insight-card accent-red" style="cursor:pointer; position:relative;" onclick="openModal('义乌天地')">
+                    <div class="insight-title" style="font-size:0.75rem;">🔴 义乌天地</div>
+                    <div class="insight-text" style="font-size:0.65rem;">
+                        品质合格率 <b style="color:var(--accent-red)">0%</b> · 0/1月合格<br/>
+                        品质5类问题 · 深访22次不合格<br/>
+                        差评率 <b style="color:var(--accent-red)">70.0%</b> · 28条差评
+                    </div>
+                    <div style="position:absolute;bottom:4px;right:6px;font-size:0.55rem;color:var(--text-muted);">👆 点击详情</div>
+                </div>
+                <div class="insight-card accent-red" style="cursor:pointer; position:relative;" onclick="openModal('南京江北虹悦城店')">
+                    <div class="insight-title" style="font-size:0.75rem;">🔴 南京江北虹悦城</div>
+                    <div class="insight-text" style="font-size:0.65rem;">
+                        品质合格率 <b style="color:var(--accent-red)">50.0%</b> · 1/2月合格<br/>
+                        品质7类问题 · 深访35次不合格<br/>
+                        差评率 <b style="color:var(--accent-red)">55.0%</b> · 22条差评
+                    </div>
+                    <div style="position:absolute;bottom:4px;right:6px;font-size:0.55rem;color:var(--text-muted);">👆 点击详情</div>
+                </div>
+                <div class="insight-card accent-red" style="cursor:pointer; position:relative;" onclick="openModal('上海杨浦大学路')">
+                    <div class="insight-title" style="font-size:0.75rem;">🔴 上海杨浦大学路</div>
+                    <div class="insight-text" style="font-size:0.65rem;">
+                        品质合格率 <b style="color:var(--accent-red)">50.0%</b> · 1/2月合格<br/>
+                        品质7类问题 · 深访66次不合格<br/>
+                        差评率 <b style="color:var(--accent-red)">33.3%</b> · 21条差评
+                    </div>
+                    <div style="position:absolute;bottom:4px;right:6px;font-size:0.55rem;color:var(--text-muted);">👆 点击详情</div>
+                </div>
+            </div>
+
+            <!-- 第2行：品质×差评风险门店排行 + 深访×差评排行 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+                <div class="chart-section">
+                    <h3 class="section-title" style="font-size:0.8rem;">品质×差评 高风险门店 TOP10</h3>
+                    <div id="chart-risk-store" class="chart-container" style="height:260px;"></div>
+                </div>
+                <div class="chart-section">
+                    <h3 class="section-title" style="font-size:0.8rem;">深访×差评 高风险门店 TOP10</h3>
+                    <div id="chart-deep-risk" class="chart-container" style="height:260px;"></div>
+                </div>
+            </div>
+
+            <!-- 第3行：区域对比 + 差评内容印证 -->
+            <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:0.75rem;margin-bottom:0.5rem;">
+                <div class="chart-section">
+                    <h3 class="section-title" style="font-size:0.8rem;">区域品质问题数 vs 差评率</h3>
+                    <div id="chart-region-risk" class="chart-container" style="height:180px;"></div>
+                </div>
+                <div class="content-section" style="padding:0.75rem;">
+                                    <div class="section-title" style="font-size:0.8rem;margin-bottom:0.5rem;">💬 差评内容印证 · 品质问题→顾客体验</div>
+                                    <div style="font-size:0.7rem;color:var(--text-secondary);line-height:1.6;">
+                                        <p><b style="color:var(--accent-red)">🔗 深访TOP1「门店环境及安全」→ 差评关键词</b><br/>
+                                        "空间狭小，环境破旧，室内座椅破损、靠枕脏"<br/>
+                                        <span style="color:var(--text-muted);">— 上海七宝领展广场（评分2.0）</span></p>
+                                        <p><b style="color:var(--accent-red)">🔗 品质TOP1「蒸汽棒清洁」→ 差评关键词</b><br/>
+                                        "打开发现完全没有奶泡，只是把奶蒸热了而已"<br/>
+                                        <span style="color:var(--text-muted);">— 上海世纪汇、中环百联等（评分1.0-2.0）</span></p>
+                                        <p><b style="color:var(--accent-red)">🔗 义乌天地（合格率0%）→ 差评原文</b><br/>
+                                        "越来越淡了，不好喝了...淡的像刷锅水，都不及瑞幸"<br/>
+                                        "这家店深烘美式喝出来了便利店的味道..水水的"</p>
+                                        <p style="color:var(--accent-green);font-weight:600;">共 <b style="font-size:1rem;">1,267</b> 条差评涉及"环境/座椅/脏/破/旧"<br/>
+                                        共 <b style="font-size:1rem;">130</b> 条差评涉及"蒸汽/奶泡/奶渍"</p>
+                                    </div>
+                                </div>
+            </div>
+
+            <!-- 第4行：AM维度风险排行 + 归因 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div class="chart-section">
+                    <h3 class="section-title" style="font-size:0.8rem;">AM维度 · 品质×差评风险排行</h3>
+                    <div id="chart-am-risk" class="chart-container" style="height:230px;"></div>
+                </div>
+                <div class="content-section" style="padding:0.75rem;">
+                                    <div class="section-title" style="font-size:0.8rem;margin-bottom:0.5rem;">📊 品质×差评关联 · 解释说明</div>
+                                    <div style="font-size:0.7rem;color:var(--text-secondary);line-height:1.6;">
+                                        <p><b style="color:var(--coffee-dark)">1. 为什么这些门店是双高风险？</b><br/>
+                                        风险评分 = 品质问题数×2 + 差评数×3。<br/>
+                                        品质问题多 → 差评多 → 品牌口碑受损，形成恶性循环。</p>
+                                        <p><b style="color:var(--coffee-dark)">2. 品质→差评的因果链（点击门店可查看明细）</b><br/>
+                                        🔗 <b>品质不合格「蒸汽棒清洁」</b> → 顾客感知为"奶泡粗糙/没奶泡"<br/>
+                                        🔗 <b>深访不合格「门店环境及安全」</b> → 顾客感知为"环境脏/座椅破"<br/>
+                                        🔗 <b>品质不合格「咖啡萃取参数」</b> → 顾客感知为"淡如刷锅水/没咖啡味"</p>
+                                        <p><b style="color:var(--coffee-dark)">3. 数据说明</b><br/>
+                                        品质合格率 = 门店按月维度，以「是否合格」字段首次记录为准<br/>
+                                        深访不合格次数 = 题目维度不合格记录总数<br/>
+                                        差评率 = 评分＜2的记录 / 总评价数</p>
+                                    </div>
+                                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer"><span class="slide-number">6月访店 · 门店风险地图</span></div>
+    </div>
+
+    <!-- 门店下钻弹窗 -->
+    <div class="modal-overlay" id="storeModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalStoreName">门店名称</h2>
+                    <div class="modal-store-meta">
+                        <span id="modalRegion">区域</span>
+                        <span id="modalCity">城市</span>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="qa" onclick="switchTab('qa')">
+                    品质问题 <span class="badge" id="qaBadge">0</span>
+                </button>
+                <button class="modal-tab" data-tab="deep" onclick="switchTab('deep')">
+                    深访问题 <span class="badge gold" id="deepBadge">0</span>
+                </button>
+                <button class="modal-tab" data-tab="review" onclick="switchTab('review')">
+                    差评内容 <span class="badge green" id="reviewBadge">0</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modalQaContent" class="modal-content"></div>
+                <div id="modalDeepContent" class="modal-content" style="display:none"></div>
+                <div id="modalReviewContent" class="modal-content" style="display:none"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const C = {blue:'#2B6CB0',red:'#A65D57',gold:'#C9A962',green:'#5B8C6A',dark:'#3D3330'};
+        let storeData = {};
+        let currentStore = null;
+
+        // ===== 加载门店数据 =====
+        fetch('../store_data.json')
+            .then(r => r.json())
+            .then(d => { storeData = d.stores; })
+            .catch(e => console.warn('门店数据加载失败，下钻功能不可用', e));
+
+        // ===== 门店搜索（模糊匹配）=====
+        function findStore(name) {
+            const key = name.replace(/[店址]/g, '').trim();
+            for (const [sid, s] of Object.entries(storeData)) {
+                const sn = s.store_name.replace(/[店址]/g, '').trim();
+                if (sn.includes(key) || key.includes(sn)) return s;
+            }
+            return null;
+        }
+
+        // ===== 弹窗控制 =====
+        function openModal(storeName) {
+            currentStore = findStore(storeName);
+            if (!currentStore) { alert('暂无该门店的明细数据'); return; }
+            document.getElementById('modalStoreName').textContent = currentStore.store_name || storeName;
+            document.getElementById('modalRegion').textContent = '📍 ' + (currentStore.region || '-');
+            document.getElementById('modalCity').textContent = '🏙️ ' + (currentStore.city || '-');
+            // 更新徽章
+            document.getElementById('qaBadge').textContent = currentStore.qa_problems.length;
+            document.getElementById('deepBadge').textContent = currentStore.deep_problems.length;
+            document.getElementById('reviewBadge').textContent = currentStore.neg_reviews.length;
+            // 渲染各标签页
+            renderQa(currentStore.qa_problems, currentStore);
+            renderDeep(currentStore.deep_problems, currentStore);
+            renderReview(currentStore.neg_reviews);
+            switchTab('qa');
+            document.getElementById('storeModal').classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('storeModal').classList.remove('active');
+        }
+        function switchTab(tab) {
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+            ['qa', 'deep', 'review'].forEach(t => {
+                document.getElementById('modal' + t.charAt(0).toUpperCase() + t.slice(1) + 'Content').style.display = t === tab ? '' : 'none';
+            });
+        }
+        function renderQa(problems, store) {
+            const el = document.getElementById('modalQaContent');
+            if (!problems || problems.length === 0) { el.innerHTML = '<div class="empty-state">✅ 暂无品质稽核不合格项</div>'; return; }
+            el.innerHTML = '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.4rem;">共 ' + store.qa_unique_problems + ' 类问题 · ' + store.qa_total_fails + ' 次不合格</div>' +
+                problems.map(p => '<div class="problem-item"><span class="item-name">' + escHtml(p.item) + '</span><span class="count">' + p.count + '次</span></div>').join('');
+        }
+        function renderDeep(problems, store) {
+            const el = document.getElementById('modalDeepContent');
+            if (!problems || problems.length === 0) { el.innerHTML = '<div class="empty-state">✅ 暂无深访不合格项</div>'; return; }
+            el.innerHTML = '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.4rem;">共 ' + store.deep_unique_problems + ' 类问题 · ' + store.deep_total_fails + ' 次不合格</div>' +
+                problems.map(p => '<div class="problem-item"><span class="item-name">' + escHtml(p.item) + '</span><span class="count">' + p.count + '次</span></div>').join('');
+        }
+        function renderReview(reviews) {
+            const el = document.getElementById('modalReviewContent');
+            if (!reviews || reviews.length === 0) { el.innerHTML = '<div class="empty-state">✅ 无差评记录</div>'; return; }
+            el.innerHTML = reviews.map(r => '<div class="review-item"><span class="score">' + r.score + '分</span><span class="text">' + escHtml(r.content) + '</span></div>').join('');
+        }
+        function escHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // 点击弹窗外关闭
+        document.getElementById('storeModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ===== 品质×差评风险门店（支持点击下钻） =====
+        const qaStoreNames = ['淮安万象城','郑州郑东万象城','长沙万象城','北京西直门凯德','义乌天地','北京长楹天街','常州万象城','宁波天一广场','上海虹口龙之梦','泰州万象城'];
+        const rs = echarts.init(document.getElementById('chart-risk-store'));
+        rs.setOption({
+            grid:{left:5,right:20,bottom:3,top:3,containLabel:true},
+            xAxis:{type:'value',axisLabel:{fontSize:8}},
+            yAxis:{type:'category',data:qaStoreNames.slice().reverse(),axisLabel:{fontSize:8}},
+            tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:p=>p[0].name+'<br/>风险评分: '+p[0].value+'<br/>👆 点击查看门店详情'},
+            series:[{
+                data:[113,105,103,103,94,91,90,84,83,83].reverse(),
+                type:'bar',barWidth:'55%',
+                label:{show:true,position:'right',fontSize:8,formatter:'{c}'},
+                itemStyle:{color:C.red,borderRadius:[0,3,3,0],opacity:0.85,cursor:'pointer'}
+            }]
+        });
+        rs.on('click', function(p) {
+            if (p.componentType === 'series') openModal(qaStoreNames[qaStoreNames.length - 1 - p.dataIndex]);
+        });
+
+        // ===== 深访×差评风险门店 =====
+        const deepStoreNames = ['淮安万象城','上海杨浦大学路','上海长寿路旭辉','北京长楹天街','上海中山公园龙之梦','上海北外滩来福士','上海虹口龙之梦','上海陆悦天地','上海南丰城','上海太阳宫'];
+        const dr = echarts.init(document.getElementById('chart-deep-risk'));
+        dr.setOption({
+            grid:{left:5,right:20,bottom:3,top:3,containLabel:true},
+            xAxis:{type:'value',axisLabel:{fontSize:8}},
+            yAxis:{type:'category',data:deepStoreNames.slice().reverse(),axisLabel:{fontSize:8}},
+            tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:p=>p[0].name+'<br/>风险评分: '+p[0].value+'<br/>👆 点击查看门店详情'},
+            series:[{
+                data:[165,162,156,153,146,144,144,142,142,134].reverse(),
+                type:'bar',barWidth:'55%',
+                label:{show:true,position:'right',fontSize:8,formatter:'{c}'},
+                itemStyle:{color:C.blue,borderRadius:[0,3,3,0],opacity:0.85,cursor:'pointer'}
+            }]
+        });
+        dr.on('click', function(p) {
+            if (p.componentType === 'series') openModal(deepStoreNames[deepStoreNames.length - 1 - p.dataIndex]);
+        });
+
+        // ===== 区域对比 =====
+        const rc = echarts.init(document.getElementById('chart-region-risk'));
+        rc.setOption({
+            tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+            legend:{data:['品质问题数','差评率(%)'],top:2,textStyle:{fontSize:8}},
+            grid:{left:5,right:40,bottom:3,top:20,containLabel:true},
+            xAxis:{type:'category',data:['East','North','South','West'],axisLabel:{fontSize:9}},
+            yAxis:[
+                {type:'value',axisLabel:{fontSize:7},splitLine:{lineStyle:{type:'dashed',opacity:0.2}}},
+                {type:'value',min:30,max:45,axisLabel:{fontSize:7,formatter:'{value}%'},splitLine:{show:false}}
+            ],
+            series:[
+                {name:'品质问题数',data:[938,204,46,19],type:'bar',barWidth:'30%',
+                    itemStyle:{color:C.blue,borderRadius:[3,3,0,0]},
+                    label:{show:true,position:'top',fontSize:8}},
+                {name:'差评率(%)',data:[39.2,38.2,37.6,34.3],type:'line',yAxisIndex:1,smooth:true,
+                    symbol:'circle',lineStyle:{color:C.red,width:2},itemStyle:{color:C.red}}
+            ]
+        });
+
+        // ===== AM风险排行（非门店级，无下钻）=====
+        const ar = echarts.init(document.getElementById('chart-am-risk'));
+        ar.setOption({
+            grid:{left:5,right:20,bottom:3,top:3,containLabel:true},
+            xAxis:{type:'value',axisLabel:{fontSize:7}},
+            yAxis:{type:'category',data:['Michael Chen','Fish Yu','Kiki Wan','Venus Diao','Cindy Wang','Danna Xia','Cindy Fu','Fanta Chen','Eric Zhao','Log Sheng'].reverse(),axisLabel:{fontSize:7}},
+            tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:p=>p[0].name+'<br/>风险评分: '+p[0].value},
+            series:[{
+                data:[755,670,662,615,594,566,559,549,549,547].reverse(),
+                type:'bar',barWidth:'50%',
+                label:{show:true,position:'right',fontSize:7,formatter:'{c}'},
+                itemStyle:{color:C.blue,borderRadius:[0,3,3,0],opacity:0.85}
+            }]
+        });
+
+        window.addEventListener('resize',()=>{rs.resize();dr.resize();rc.resize();ar.resize();});
+    </script>
+
+    </body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6月访店 — 运营风险预警</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../echarts.min.js"></script>
+</head>
+<body class="slide-page">
+    <div class="slide">
+        <div class="slide-header">
+            <h1 class="slide-title">运营风险预警 · 深访 & 上新</h1>
+            <p class="slide-subtitle">深访不合格率持续爬升 + 上新完成率断崖下跌</p>
+        </div>
+
+        <div class="slide-content" style="overflow-y:auto;padding-right:0.3rem;">
+            <!-- 双轴趋势图：深访不合格率 + 上新完成率 -->
+            <div class="chart-section" style="margin-bottom:0.75rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
+                    <h3 class="section-title" style="margin:0;font-size:0.85rem;">双轴预警 · 深访不合格率 vs 上新完成率</h3>
+                    <div class="filter-group">
+                        <button class="filter-btn active" onclick="switchView(this,'dual')">双轴</button>
+                        <button class="filter-btn" onclick="switchView(this,'deep')">深访</button>
+                        <button class="filter-btn" onclick="switchView(this,'shang')">上新</button>
+                    </div>
+                </div>
+                <div id="chart-dual" class="chart-container" style="height:200px;"></div>
+            </div>
+
+            <!-- 双栏：深访TOP5 + 上新AM排行 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+                <div class="chart-section">
+                    <h3 class="section-title" style="font-size:0.8rem;">深访TOP5问题（1-6月累计）</h3>
+                    <div id="chart-deep-top" class="chart-container" style="height:200px;"></div>
+                </div>
+                <div class="chart-section">
+                    <h3 class="section-title" style="font-size:0.8rem;">6月上新完成率排行</h3>
+                    <div id="chart-shang-rank" class="chart-container" style="height:200px;"></div>
+                </div>
+            </div>
+
+            <!-- 深访完成率 + 零上新AM -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div class="chart-section">
+                    <h3 class="section-title" style="font-size:0.8rem;">6月深访完成率排行</h3>
+                    <div id="chart-sf-rank" class="chart-container" style="height:200px;"></div>
+                </div>
+                <div class="content-section" style="padding:0.75rem;">
+                    <div class="section-title" style="font-size:0.8rem;margin-bottom:0.5rem;">6月零上新AM（12位）</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Stella20家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Log27家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Sisco12家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Cindy Wang16家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Sevi18家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Chris8家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Danna12家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Tina14家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Roy12家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Kyrie10家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Nick11家店</span>
+                        <span style="background:#fef0f0;color:var(--accent-red);padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">Gemini16家店</span>
+                    </div>
+                    <div class="insight-text" style="font-size:0.7rem;">
+                        <span style="color:var(--accent-red);font-weight:600;">12位</span> AM 6月未完成任何一次上新访店，其中 Stella(20家)、Log(27家)、Sevi(18家)、Tina(14家) 管辖门店超10家，影响面较大。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 持续落后AM -->
+            <div class="content-section" style="margin-top:0.5rem;padding:0.75rem;">
+                <div class="section-title" style="font-size:0.8rem;margin-bottom:0.4rem;">持续落后AM · 深访进度&lt;80%（多次）</div>
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+                    <div style="background:#fff;border:1px solid var(--border-color);border-radius:6px;padding:0.5rem 0.8rem;text-align:center;min-width:100px;">
+                        <div style="font-size:0.8rem;font-weight:700;color:var(--accent-red);">Nick</div>
+                        <div style="font-size:0.65rem;color:var(--text-muted);">3月<80%</div>
+                        <div style="font-size:0.7rem;font-weight:600;">最近62.5%</div>
+                    </div>
+                    <div style="background:#fff;border:1px solid var(--border-color);border-radius:6px;padding:0.5rem 0.8rem;text-align:center;min-width:100px;">
+                        <div style="font-size:0.8rem;font-weight:700;color:var(--accent-red);">Tina</div>
+                        <div style="font-size:0.65rem;color:var(--text-muted);">3月<80%</div>
+                        <div style="font-size:0.7rem;font-weight:600;">最近71.4%</div>
+                    </div>
+                    <div style="background:#fff;border:1px solid var(--border-color);border-radius:6px;padding:0.5rem 0.8rem;text-align:center;min-width:100px;">
+                        <div style="font-size:0.8rem;font-weight:700;color:var(--accent-red);">Sevi</div>
+                        <div style="font-size:0.65rem;color:var(--text-muted);">3月<80%</div>
+                        <div style="font-size:0.7rem;font-weight:600;">最近75.0%</div>
+                    </div>
+                    <div style="background:#fff;border:1px solid var(--border-color);border-radius:6px;padding:0.5rem 0.8rem;text-align:center;min-width:100px;">
+                        <div style="font-size:0.8rem;font-weight:700;color:var(--coffee-gold);">Chris</div>
+                        <div style="font-size:0.65rem;color:var(--text-muted);">1月<80%</div>
+                        <div style="font-size:0.7rem;font-weight:600;">最近75.0%</div>
+                    </div>
+                    <div style="background:#fff;border:1px solid var(--border-color);border-radius:6px;padding:0.5rem 0.8rem;text-align:center;min-width:100px;">
+                        <div style="font-size:0.8rem;font-weight:700;color:var(--coffee-gold);">Danna</div>
+                        <div style="font-size:0.65rem;color:var(--text-muted);">1月<80%</div>
+                        <div style="font-size:0.7rem;font-weight:600;">最近66.7%</div>
+                    </div>
+                    <div style="background:#fff;border:1px solid var(--border-color);border-radius:6px;padding:0.5rem 0.8rem;text-align:center;min-width:100px;">
+                        <div style="font-size:0.8rem;font-weight:700;color:var(--coffee-gold);">Matt</div>
+                        <div style="font-size:0.65rem;color:var(--text-muted);">1月<80%</div>
+                        <div style="font-size:0.7rem;font-weight:600;">最近55.6%</div>
+                    </div>
+                    <div style="background:#fff;border:1px solid var(--border-color);border-radius:6px;padding:0.5rem 0.8rem;text-align:center;min-width:100px;">
+                        <div style="font-size:0.8rem;font-weight:700;color:var(--coffee-gold);">Log</div>
+                        <div style="font-size:0.65rem;color:var(--text-muted);">1月<80%</div>
+                        <div style="font-size:0.7rem;font-weight:600;">最近73.1%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer"><span class="slide-number">6月访店 · 运营风险预警</span></div>
+    </div>
+
+    <script>
+        const C = {blue:'#2B6CB0',red:'#A65D57',gold:'#C9A962',green:'#5B8C6A',dark:'#3D3330'};
+        const months = ['1月','2月','3月','4月','5月','6月'];
+
+        // 双轴图
+        const dualChart = echarts.init(document.getElementById('chart-dual'));
+        const deepData = [9.1,8.7,11.1,9.9,10.1,10.6];
+        const shangData = [81.5,90.7,91.3,76.3,28.1,16.4];
+        const sfData = [94.1,93.4,98.0,98.6,91.1,93.1];
+
+        function renderDualView(view) {
+            if (view === 'dual') {
+                dualChart.setOption({
+                    tooltip:{trigger:'axis'},
+                    legend:{data:['深访不合格率','上新完成率'],top:2,textStyle:{fontSize:9}},
+                    grid:{left:50,right:50,top:28,bottom:20},
+                    xAxis:{type:'category',data:months,axisLabel:{fontSize:9}},
+                    yAxis:[
+                        {type:'value',min:7,max:13,axisLabel:{fontSize:8,formatter:'{value}%'},splitLine:{lineStyle:{type:'dashed',opacity:0.2}}},
+                        {type:'value',min:0,max:100,axisLabel:{fontSize:8,formatter:'{value}%'},splitLine:{show:false}}
+                    ],
+                    series:[
+                        {name:'深访不合格率',data:deepData,type:'line',smooth:true,symbol:'diamond',yAxisIndex:0,
+                            lineStyle:{color:C.red,width:2.5},itemStyle:{color:C.red},
+                            markLine:{silent:true,data:[{yAxis:10,label:{formatter:'警戒10%',fontSize:7,color:C.red}}],lineStyle:{color:C.red,type:'dashed',width:1,opacity:0.5}}},
+                        {name:'上新完成率',data:shangData,type:'line',smooth:true,symbol:'circle',yAxisIndex:1,
+                            lineStyle:{color:C.gold,width:2.5},itemStyle:{color:C.gold},
+                            markLine:{silent:true,data:[{yAxis:50,label:{formatter:'50%目标',fontSize:7,color:C.gold,position:'start'}}],lineStyle:{color:C.gold,type:'dashed',width:1,opacity:0.5}}}
+                    ]
+                }, true);
+            } else if (view === 'deep') {
+                dualChart.setOption({
+                    tooltip:{trigger:'axis'},
+                    legend:{data:['深访不合格率','深访完成率'],top:2,textStyle:{fontSize:9}},
+                    grid:{left:50,right:50,top:28,bottom:20},
+                    xAxis:{type:'category',data:months,axisLabel:{fontSize:9}},
+                    yAxis:[
+                        {type:'value',min:7,max:13,axisLabel:{fontSize:8,formatter:'{value}%'},splitLine:{lineStyle:{type:'dashed',opacity:0.2}}},
+                        {type:'value',min:60,max:100,axisLabel:{fontSize:8,formatter:'{value}%'},splitLine:{show:false}}
+                    ],
+                    series:[
+                        {name:'深访不合格率',data:deepData,type:'line',smooth:true,symbol:'diamond',yAxisIndex:0,
+                            lineStyle:{color:C.red,width:2.5},itemStyle:{color:C.red},
+                            markLine:{silent:true,data:[{yAxis:10,label:{formatter:'警戒10%',fontSize:7,color:C.red}}],lineStyle:{color:C.red,type:'dashed',width:1,opacity:0.5}}},
+                        {name:'深访完成率',data:sfData,type:'bar',yAxisIndex:1,barWidth:'30%',
+                            itemStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:C.green},{offset:1,color:'#A8D5BA'}]},borderRadius:[3,3,0,0]}}
+                    ]
+                }, true);
+            } else {
+                dualChart.setOption({
+                    tooltip:{trigger:'axis'},
+                    legend:{data:['上新完成率','零上新AM数'],top:2,textStyle:{fontSize:9}},
+                    grid:{left:50,right:50,top:28,bottom:20},
+                    xAxis:{type:'category',data:months,axisLabel:{fontSize:9}},
+                    yAxis:[
+                        {type:'value',min:0,max:100,axisLabel:{fontSize:8,formatter:'{value}%'},splitLine:{lineStyle:{type:'dashed',opacity:0.2}}},
+                        {type:'value',min:0,axisLabel:{fontSize:8},splitLine:{show:false}}
+                    ],
+                    series:[
+                        {name:'上新完成率',data:shangData,type:'line',smooth:true,symbol:'circle',yAxisIndex:0,
+                            lineStyle:{color:C.gold,width:2.5},itemStyle:{color:C.gold},
+                            areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(201,169,98,0.2)'},{offset:1,color:'rgba(201,169,98,0.01)'}]}}},
+                        {name:'零上新AM数',data:[0,0,0,7,11,12],type:'bar',yAxisIndex:1,barWidth:'30%',
+                            itemStyle:{color:C.red,opacity:0.7,borderRadius:[3,3,0,0]},
+                            label:{show:true,position:'top',fontSize:8,formatter:'{c}人'}}
+                    ]
+                }, true);
+            }
+        }
+
+        function switchView(btn, view) {
+            document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            renderDualView(view);
+        }
+        renderDualView('dual');
+
+        // 深访TOP5
+        const dt = echarts.init(document.getElementById('chart-deep-top'));
+        dt.setOption({
+            grid:{left:5,right:20,bottom:3,top:3,containLabel:true},
+            xAxis:{type:'value',axisLabel:{fontSize:8}},
+            yAxis:{type:'category',data:['门店环境及安全','稽核检查','全渠道评价','盘点及报损','服务话术'],axisLabel:{fontSize:8}},
+            tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:p=>p[0].name+'<br/>'+p[0].value+'家门店·'+p[0].data.hits+'次'},
+            series:[{
+                data:[{value:260,hits:1493},{value:203,hits:498},{value:190,hits:536},{value:188,hits:468},{value:183,hits:457}],
+                type:'bar',barWidth:'55%',
+                label:{show:true,position:'right',fontSize:8,formatter:p=>p.value+'家'},
+                itemStyle:{color:C.red,borderRadius:[0,3,3,0],opacity:0.85}
+            }]
+        });
+
+        // 上新排行
+        const sr = echarts.init(document.getElementById('chart-shang-rank'));
+        sr.setOption({
+            grid:{left:5,right:20,bottom:3,top:3,containLabel:true},
+            xAxis:{type:'value',axisLabel:{fontSize:8,formatter:'{value}%'}},
+            yAxis:{type:'category',data:['Fanta','Cassie','Marc','Karina','Venus','Bobby','Kiki','Eric','Fish','Nicole'].reverse(),axisLabel:{fontSize:8}},
+            tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:p=>p[0].name+'<br/>'+p[0].value+'%'},
+            series:[{
+                data:[66.7,58.3,57.1,50.0,33.3,28.6,23.1,20.0,20.0,11.1].reverse(),
+                type:'bar',barWidth:'50%',
+                label:{show:true,position:'right',fontSize:8,formatter:'{c}%'},
+                itemStyle:{color:C.gold,borderRadius:[0,3,3,0],opacity:0.85}
+            }]
+        });
+
+        // 深访排行
+        const sfRank = echarts.init(document.getElementById('chart-sf-rank'));
+        sfRank.setOption({
+            grid:{left:5,right:20,bottom:3,top:3,containLabel:true},
+            xAxis:{type:'value',min:85,max:101,axisLabel:{fontSize:8,formatter:'{value}%'}},
+            yAxis:{type:'category',data:['Cindy Wang','Bobby','Fanta','Nicole','Karina','Eric','Stella','Marc','Danna','Fish'].reverse(),axisLabel:{fontSize:8}},
+            tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:p=>p[0].name+'<br/>'+p[0].value+'%'},
+            series:[{
+                data:[100,100,100,100,100,100,100,100,100,100].reverse(),
+                type:'bar',barWidth:'50%',
+                label:{show:true,position:'right',fontSize:8,formatter:'{c}%'},
+                itemStyle:{color:C.green,borderRadius:[0,3,3,0],opacity:0.85}
+            }]
+        });
+
+        window.addEventListener('resize',()=>{dualChart.resize();dt.resize();sr.resize();sfRank.resize();});
+    </script>
+</body>
+</html>

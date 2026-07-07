@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6月访店 — AM效能诊断</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../echarts.min.js"></script>
+</head>
+<body class="slide-page">
+    <div class="slide">
+        <div class="slide-header">
+            <h1 class="slide-title">AM效能诊断 · 深访 & 上新完成率</h1>
+            <p class="slide-subtitle">AM × 月份 完成率追踪 · 识别持续落后与突然下滑的AM</p>
+        </div>
+
+        <div class="slide-content" style="overflow-y:auto;padding-right:0.3rem;">
+            <!-- 筛选按钮 -->
+            <div class="filter-group" style="margin-bottom:0.5rem;">
+                <button class="filter-btn active" onclick="switchTab(this,'all')">全部AM</button>
+                <button class="filter-btn" onclick="switchTab(this,'risk')">🔴 风险AM</button>
+                <button class="filter-btn" onclick="switchTab(this,'normal')">🟢 正常AM</button>
+            </div>
+
+            <!-- 第1行：深访热力图 + 上新热力图 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+                <div class="chart-section" style="padding:0.6rem;">
+                    <h3 class="section-title" style="font-size:0.8rem;margin-bottom:0.3rem;">深访完成率 · AM × 月份</h3>
+                    <div id="chart-sf-heat" class="chart-container" style="height:320px;"></div>
+                </div>
+                <div class="chart-section" style="padding:0.6rem;">
+                    <h3 class="section-title" style="font-size:0.8rem;margin-bottom:0.3rem;">上新完成率 · AM × 月份</h3>
+                    <div id="chart-sh-heat" class="chart-container" style="height:320px;"></div>
+                </div>
+            </div>
+
+            <!-- 第2行：归因分析 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+                <div class="content-section" style="padding:0.75rem;">
+                    <div class="section-title" style="font-size:0.8rem;margin-bottom:0.5rem;color:var(--accent-red);">🔴 双低AM · 深访+上新均不达标</div>
+                    <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fef0f0;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Sevi（18家店）</span>
+                            <span>深访 33.3%</span>
+                            <span>上新 0%</span>
+                            <span style="color:var(--text-muted);">核心问题：深访进度严重不足，上新完全停滞</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fef0f0;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Chris（8家店）</span>
+                            <span>深访 75.0%</span>
+                            <span>上新 0%</span>
+                            <span style="color:var(--text-muted);">核心问题：上新为零，深访刚达标线</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fef0f0;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Log（27家店）</span>
+                            <span>深访 73.1%</span>
+                            <span>上新 0%</span>
+                            <span style="color:var(--text-muted);">核心问题：27家店管辖量大，上新全部未覆盖</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fef0f0;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Stella（20家店）</span>
+                            <span>深访 0%</span>
+                            <span>上新 0%</span>
+                            <span style="color:var(--text-muted);">核心问题：两项均为零，需确认是否在岗</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fef0f0;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Gemini（16家店）</span>
+                            <span>深访 0%</span>
+                            <span>上新 0%</span>
+                            <span style="color:var(--text-muted);">核心问题：两项均为零，需确认是否在岗</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-section" style="padding:0.75rem;">
+                    <div class="section-title" style="font-size:0.8rem;margin-bottom:0.5rem;color:var(--coffee-gold);">🟡 上新低AM · 深访正常但上新不足</div>
+                    <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fff8e8;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Cindy Wang（16家）</span>
+                            <span>深访 100%</span>
+                            <span>上新 0% → 从100%断崖</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fff8e8;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Danna（12家）</span>
+                            <span>深访 100%</span>
+                            <span>上新 0% → 从100%断崖</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fff8e8;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Tina（14家）</span>
+                            <span>深访 85.7%</span>
+                            <span>上新 0% → 波动下滑</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fff8e8;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Nick（11家）</span>
+                            <span>深访 81.8%</span>
+                            <span>上新 0%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#fff8e8;padding:0.4rem 0.6rem;border-radius:4px;font-size:0.7rem;">
+                            <span style="font-weight:600;">Sisco（12家）</span>
+                            <span>深访 100%</span>
+                            <span>上新 0% → 连续3月为零</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第3行：归因+建议 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <div class="content-section" style="padding:0.75rem;">
+                    <div class="section-title" style="font-size:0.8rem;margin-bottom:0.5rem;">📊 归因分析</div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);line-height:1.6;">
+                        <p><b style="color:var(--coffee-dark)">1. 上新完成率断崖是系统性中断，非个别AM问题</b><br/>
+                        5月已有11位AM零上新，6月扩大到12位。从1-4月普遍80-100%到5-6月集体下降，说明不是AM个人能力问题，而是<strong style="color:var(--accent-red);">管理机制或资源分配</strong>出了问题。</p>
+                        <p><b style="color:var(--coffee-dark)">2. 深访问题集中于少数AM</b><br/>
+                        Sevi(33.3%)、Log(73.1%)、Chris(75.0%) 是深访重点关注对象，其余AM深访完成率普遍在90-100%。</p>
+                        <p><b style="color:var(--coffee-dark)">3. 深访不合格集中在"门店环境及安全"</b><br/>
+                        所有AM的TOP1问题都是"门店环境及安全重点"，这是系统性问题，非个别AM管辖门店特有。</p>
+                        <p><b style="color:var(--coffee-dark)">4. 管辖门店数≠完成率</b><br/>
+                        Stella(20家)和Gemini(16家)深访上新均为零，而Eric(15家)、Fish(17家)深访100%。店数多不是理由。</p>
+                    </div>
+                </div>
+                <div class="content-section" style="padding:0.75rem;">
+                    <div class="section-title" style="font-size:0.8rem;margin-bottom:0.5rem;">🎯 行动建议</div>
+                    <div style="font-size:0.7rem;color:var(--text-secondary);line-height:1.6;">
+                        <p><b style="color:var(--coffee-dark)">1️⃣ 确认6位双零AM状态</b><br/>
+                        Stella(20家)、Gemini(16家)、Sevi(18家)、Log(27家)、Bobby(18家)、Cason(17家) 深访上新均为零或极低。建议先确认：<strong style="color:var(--accent-red);">是否在岗？是否休假？是否被调派其他任务？</strong></p>
+                        <p><b style="color:var(--coffee-dark)">2️⃣ 上新体系恢复计划</b><br/>
+                        7月设50%完成率恢复目标。将12位零上新AM按原因分类：<strong style="color:var(--coffee-dark);">A类（时间冲突）</strong>→调整排班；<strong style="color:var(--coffee-dark);">B类（覆盖遗漏）</strong>→区域经理督促；<strong style="color:var(--coffee-dark);">C类（意愿问题）</strong>→绩效面谈。</p>
+                        <p><b style="color:var(--coffee-dark)">3️⃣ 深访重点辅导</b><br/>
+                        Sevi(33.3%)建议区域经理带教一次深访全流程；Log(73.1%)和Chris(75.0%)设7月目标≥90%。</p>
+                        <p><b style="color:var(--coffee-dark)">4️⃣ 系统性问题 — 门店环境及安全</b><br/>
+                        所有AM的TOP1问题都是环境安全，建议<strong style="color:var(--coffee-dark);">统一制定环境检查清单</strong>，纳入每日交接班检查，而非每次等深访才被发现。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer"><span class="slide-number">6月访店 · AM效能诊断</span></div>
+    </div>
+
+    <script>
+        const C = {blue:'#2B6CB0',red:'#A65D57',gold:'#C9A962',green:'#5B8C6A',dark:'#3D3330'};
+        const months = ['1月','2月','3月','4月','5月','6月'];
+
+        // ===== 深访热力图数据（AM × 月份） =====
+        const sfHeatData = [
+            // 按6月完成率升序排列，问题AM在前
+            {am:'Stella', vals:[100,100,100,100,100,0]},
+            {am:'Gemini', vals:[92,100,100,100,100,0]},
+            {am:'Sevi',  vals:[75,75,100,100,75,33]},
+            {am:'Log',   vals:[100,100,100,100,100,73]},
+            {am:'Chris', vals:[null,null,null,null,null,75]},
+            {am:'Nick',  vals:[63,50,100,100,50,82]},
+            {am:'Tina',  vals:[71,64,57,71,86,86]},
+            {am:'Roy',   vals:[null,null,null,null,null,92]},
+            {am:'Cindy', vals:[88,100,100,100,88,100]},
+            {am:'Danna', vals:[100,100,100,100,67,100]},
+            {am:'Fish',  vals:[100,100,100,100,93,100]},
+            {am:'Eric',  vals:[100,86,100,100,100,100]},
+            {am:'Bobby', vals:[100,100,100,100,100,100]},
+            {am:'Fanta', vals:[100,100,100,100,100,100]},
+            {am:'Karina',vals:[null,null,100,100,100,100]},
+            {am:'Marc',  vals:[100,100,100,100,100,100]},
+            {am:'Cassie',vals:[100,100,100,100,100,100]},
+            {am:'Kiki',  vals:[100,100,100,100,100,100]},
+            {am:'Sisco', vals:[null,null,100,100,100,100]},
+            {am:'Venus', vals:[100,100,100,100,100,100]},
+            {am:'Cason', vals:[100,100,100,100,100,100]},
+            {am:'Nicole',vals:[null,null,null,null,null,100]},
+            {am:'Kyrie', vals:[null,null,null,null,null,100]},
+        ];
+
+        // ===== 上新热力图数据 =====
+        const shHeatData = [
+            {am:'Stella', vals:[100,92,100,100,0,0]},
+            {am:'Gemini', vals:[62,100,75,27,0,0]},
+            {am:'Sevi',  vals:[13,100,100,100,100,0]},
+            {am:'Log',   vals:[100,100,100,100,0,0]},
+            {am:'Chris', vals:[null,null,null,null,null,0]},
+            {am:'Nick',  vals:[88,100,100,100,0,0]},
+            {am:'Tina',  vals:[7,86,36,64,14,0]},
+            {am:'Roy',   vals:[null,null,null,null,null,0]},
+            {am:'Cindy', vals:[100,56,100,100,0,0]},
+            {am:'Danna', vals:[100,100,92,83,0,0]},
+            {am:'Fish',  vals:[100,87,100,53,73,20]},
+            {am:'Eric',  vals:[36,93,100,39,54,20]},
+            {am:'Bobby', vals:[92,100,100,54,69,29]},
+            {am:'Fanta', vals:[100,100,85,100,23,67]},
+            {am:'Karina',vals:[null,null,100,100,100,50]},
+            {am:'Marc',  vals:[100,100,100,100,58,57]},
+            {am:'Cassie',vals:[100,58,100,91,27,58]},
+            {am:'Kiki',  vals:[100,100,93,100,0,23]},
+            {am:'Sisco', vals:[null,null,46,0,0,0]},
+            {am:'Venus', vals:[86,86,93,64,71,33]},
+            {am:'Cason', vals:[67,80,100,86,0,8]},
+            {am:'Nicole',vals:[null,null,null,null,null,11]},
+            {am:'Kyrie', vals:[null,null,null,null,null,0]},
+        ];
+
+        function getHeatmapOption(data, title) {
+            const ams = data.map(d => d.am);
+            const seriesData = [];
+            data.forEach((d, yi) => {
+                d.vals.forEach((v, xi) => {
+                    if (v !== null) {
+                        let color;
+                        if (v >= 90) color = '#2e7d32';
+                        else if (v >= 80) color = '#558b2f';
+                        else if (v >= 50) color = '#f9a825';
+                        else if (v >= 20) color = '#ef6c00';
+                        else color = '#c62828';
+                        seriesData.push({value:[xi, yi, v], itemStyle:{color:color}});
+                    }
+                });
+            });
+
+            return {
+                tooltip: {position:'top', formatter: p => {
+                    const am = data[p.value[1]].am;
+                    const m = months[p.value[0]];
+                    return am + ' · ' + m + '<br/>完成率: ' + p.value[2] + '%';
+                }},
+                grid:{left:80,right:30,top:30,bottom:15},
+                xAxis:{type:'category',data:months,splitArea:{show:true},axisLabel:{fontSize:9}},
+                yAxis:{type:'category',data:ams,splitArea:{show:true},axisLabel:{fontSize:8}},
+                visualMap:{min:0,max:100,calculable:true,orient:'vertical',right:5,top:30,bottom:30,
+                    inRange:{color:['#c62828','#ef6c00','#f9a825','#558b2f','#2e7d32']},
+                    textStyle:{fontSize:8}},
+                series:[{
+                    type:'heatmap',data:seriesData,
+                    label:{show:true,fontSize:8,color:'#fff',formatter:p=>p.value[2] + '%'},
+                    emphasis:{itemStyle:{shadowBlur:10,shadowColor:'rgba(0,0,0,0.5)'}}
+                }]
+            };
+        }
+
+        const sfChart = echarts.init(document.getElementById('chart-sf-heat'));
+        sfChart.setOption(getHeatmapOption(sfHeatData, '深访完成率'));
+
+        const shChart = echarts.init(document.getElementById('chart-sh-heat'));
+        shChart.setOption(getHeatmapOption(shHeatData, '上新完成率'));
+
+        function switchTab(btn, tab) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (tab === 'risk') {
+                sfChart.setOption(getHeatmapOption(sfHeatData.filter(d => d.vals[5] < 90), '深访-风险AM'));
+                shChart.setOption(getHeatmapOption(shHeatData.filter(d => d.vals[5] < 50), '上新-风险AM'));
+            } else if (tab === 'normal') {
+                sfChart.setOption(getHeatmapOption(sfHeatData.filter(d => d.vals[5] >= 90), '深访-正常AM'));
+                shChart.setOption(getHeatmapOption(shHeatData.filter(d => d.vals[5] >= 50), '上新-正常AM'));
+            } else {
+                sfChart.setOption(getHeatmapOption(sfHeatData, '深访完成率'));
+                shChart.setOption(getHeatmapOption(shHeatData, '上新完成率'));
+            }
+        }
+
+        window.addEventListener('resize',()=>{sfChart.resize();shChart.resize();});
+    </script>
+</body>
+</html>

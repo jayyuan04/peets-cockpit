@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6月访店 — 品质问题联动下钻</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../echarts.min.js"></script>
+</head>
+<body class="slide-page">
+    <div class="slide">
+        <div class="slide-header">
+            <h1 class="slide-title">品质问题 · 联动下钻</h1>
+            <p class="slide-subtitle">点击左侧任一问题 → 右侧展示涉及门店明细（1-6月累计）</p>
+        </div>
+
+        <div class="slide-content" style="padding: 0;">
+            <div style="display: flex; gap: 1rem; height: calc(100% - 60px);">
+                <div class="chart-section" style="flex: 1;">
+                    <h3 class="section-title" style="font-size:13px;">品质稽核TOP10问题<span style="font-weight:400;color:var(--text-muted);margin-left:0.3rem;">点击下钻</span></h3>
+                    <div id="chart-item" class="chart-container" style="height: calc(100% - 40px);"></div>
+                </div>
+                <div class="chart-section" style="flex: 1.3;">
+                    <h3 class="section-title" id="store-title" style="font-size:13px;">涉及门店 · 蒸汽棒清洁</h3>
+                    <div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:0.3rem;" id="store-count"></div>
+                    <div style="max-height: calc(100% - 50px); overflow-y: auto;">
+                        <table class="data-table" style="font-size:11px;">
+                            <thead>
+                                <tr><th style="font-size:12px;padding:0.4rem 0.6rem;">门店名称</th><th style="font-size:12px;padding:0.4rem 0.6rem;">区域</th><th style="font-size:12px;padding:0.4rem 0.6rem;">城市</th><th style="font-size:12px;padding:0.4rem 0.6rem;">不合格次数</th></tr>
+                            </thead>
+                            <tbody id="store-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer"><span class="slide-number">6月访店 · 品质下钻</span></div>
+    </div>
+
+    <script>
+        const C = {blue:'#2B6CB0',red:'#A65D57',gold:'#C9A962',green:'#5B8C6A',dark:'#3D3330'};
+
+        // ===== 实际数据 =====
+        const itemData = [
+            {name:'蒸汽棒干净且无垢？', stores:128, hits:160},
+            {name:'萃取参数25秒37g±2g', stores:107, hits:124},
+            {name:'热饮制作标准', stores:93, hits:121},
+            {name:'手冲咖啡标准', stores:83, hits:93},
+            {name:'出品话术标准', stores:56, hits:62},
+            {name:'TDS值记录', stores:53, hits:64},
+            {name:'手柄清洁', stores:52, hits:57},
+            {name:'新品制作标准', stores:52, hits:59},
+            {name:'培训资料完整', stores:50, hits:51},
+            {name:'自动填压器清洁', stores:44, hits:46}
+        ];
+
+        const storeMap = {
+            '蒸汽棒干净且无垢？': [
+                {name:'北京启皓大厦',reg:'北区',city:'北京',cnt:2},{name:'北京华贸广场',reg:'北区',city:'北京',cnt:2},{name:'北京西直门凯德店',reg:'北区',city:'北京',cnt:2},{name:'北京环贸中心',reg:'北区',city:'北京',cnt:2},{name:'北京鼎好',reg:'北区',city:'北京',cnt:2},{name:'北京印象城',reg:'北区',city:'北京',cnt:2},{name:'北京中关村领展广场',reg:'北区',city:'北京',cnt:2},{name:'北京石景山大悦城',reg:'北区',city:'北京',cnt:2},{name:'北京澳门中心',reg:'北区',city:'北京',cnt:2},{name:'北京超极合生汇',reg:'北区',city:'北京',cnt:2},{name:'常州环球港店',reg:'东区',city:'常州',cnt:2},{name:'南京中央店',reg:'东区',city:'南京',cnt:2},{name:'宁波阪急B56',reg:'东区',city:'宁波',cnt:2},{name:'南京景枫中心店',reg:'东区',city:'南京',cnt:2},{name:'杭州金地威新中心',reg:'东区',city:'杭州',cnt:2},{name:'杭州城北万象城',reg:'东区',city:'杭州',cnt:2},{name:'南京河西金地1F店',reg:'东区',city:'南京',cnt:2},{name:'上海宝山天街店',reg:'东区',city:'上海',cnt:2},{name:'上海浦江欢乐颂',reg:'东区',city:'上海',cnt:2},{name:'上海世纪汇',reg:'东区',city:'上海',cnt:2}
+            ],
+            '萃取参数25秒37g±2g': [
+                {name:'上海南方百联1F店',reg:'东区',city:'上海',cnt:3},{name:'杭州亚奥万象天地',reg:'东区',city:'杭州',cnt:2},{name:'北京东方广场',reg:'北区',city:'北京',cnt:2},{name:'杭州海威领界店',reg:'东区',city:'杭州',cnt:2},{name:'南京河西金地1F店',reg:'东区',city:'南京',cnt:2},{name:'上海长风大悦城',reg:'东区',city:'上海',cnt:2},{name:'广州克洛维广场',reg:'南区',city:'广州',cnt:2},{name:'南京雨花万象天地',reg:'东区',city:'南京',cnt:2},{name:'南京国金中心店',reg:'东区',city:'南京',cnt:2},{name:'南京华贸中心店',reg:'东区',city:'南京',cnt:2},{name:'杭州嘉里中心',reg:'东区',city:'杭州',cnt:2},{name:'上海置汇旭辉广场',reg:'东区',city:'上海',cnt:2},{name:'上海西郊百联',reg:'东区',city:'上海',cnt:2},{name:'上海环球港A座店',reg:'东区',city:'上海',cnt:2},{name:'上海龙华会店',reg:'东区',city:'上海',cnt:2},{name:'绍兴天地',reg:'东区',city:'绍兴',cnt:2},{name:'北京太阳宫凯德',reg:'北区',city:'北京',cnt:1},{name:'北京环贸中心',reg:'北区',city:'北京',cnt:1},{name:'北京尚东数字谷',reg:'北区',city:'北京',cnt:1},{name:'北京鼎好',reg:'北区',city:'北京',cnt:1}
+            ],
+            '热饮制作标准': [
+                {name:'上海徐汇万科中心店',reg:'东区',city:'上海',cnt:3},{name:'杭州城北万象城',reg:'东区',city:'杭州',cnt:2},{name:'嘉兴桐乡万象汇',reg:'东区',city:'嘉兴',cnt:2},{name:'上海中环百联店',reg:'东区',city:'上海',cnt:2},{name:'杭州大厦',reg:'东区',city:'杭州',cnt:2},{name:'绍兴上百万悦城店',reg:'东区',city:'绍兴',cnt:2},{name:'苏州吴江万象汇1F',reg:'东区',city:'苏州',cnt:2},{name:'无锡百联奥特莱斯店',reg:'东区',city:'无锡',cnt:2},{name:'上海肿瘤医院店',reg:'东区',city:'上海',cnt:2},{name:'上海前湾印象城店',reg:'东区',city:'上海',cnt:2},{name:'上海世纪汇',reg:'东区',city:'上海',cnt:2},{name:'上海豫园悦宾楼店',reg:'东区',city:'上海',cnt:2},{name:'上海前滩时代广场',reg:'东区',city:'上海',cnt:2},{name:'上海华山路国贸汇',reg:'东区',city:'上海',cnt:2},{name:'上海绿地缤纷城',reg:'东区',city:'上海',cnt:2},{name:'上海环宇城店',reg:'东区',city:'上海',cnt:2},{name:'上海世博源',reg:'东区',city:'上海',cnt:2},{name:'上海兴业太古汇店',reg:'东区',city:'上海',cnt:2},{name:'上海徐家汇书院店',reg:'东区',city:'上海',cnt:2},{name:'宁波阪急B56',reg:'东区',city:'宁波',cnt:2}
+            ],
+            '手冲咖啡标准': [
+                {name:'上海凯德晶萃',reg:'东区',city:'上海',cnt:2},{name:'上海近铁城市广场',reg:'东区',city:'上海',cnt:2},{name:'上海长寿路旭辉1F',reg:'东区',city:'上海',cnt:2},{name:'上海七宝领展广场',reg:'东区',city:'上海',cnt:2},{name:'上海江湾里',reg:'东区',city:'上海',cnt:2},{name:'上海第一百货商业中心店',reg:'东区',city:'上海',cnt:2},{name:'上海环宇城店',reg:'东区',city:'上海',cnt:2},{name:'上海愚园路',reg:'东区',city:'上海',cnt:2},{name:'上海世纪汇',reg:'东区',city:'上海',cnt:2},{name:'绍兴上百万和城店',reg:'东区',city:'绍兴',cnt:2},{name:'北京灵境胡同店',reg:'北区',city:'北京',cnt:1},{name:'北京印象城',reg:'北区',city:'北京',cnt:1},{name:'北京大族广场',reg:'北区',city:'北京',cnt:1},{name:'北京北苑天街',reg:'北区',city:'北京',cnt:1},{name:'北京澳门中心',reg:'北区',city:'北京',cnt:1},{name:'北京姚家园万象汇',reg:'北区',city:'北京',cnt:1},{name:'北京西直门凯德店',reg:'北区',city:'北京',cnt:1},{name:'北京万科时代奥林',reg:'北区',city:'北京',cnt:1},{name:'北京富力广场',reg:'北区',city:'北京',cnt:1},{name:'杭州萧山万象汇',reg:'东区',city:'杭州',cnt:1}
+            ],
+            '出品话术标准': [
+                {name:'杭州来福士',reg:'东区',city:'杭州',cnt:2},{name:'宁波来福士',reg:'东区',city:'宁波',cnt:2},{name:'上海北外滩来福士',reg:'东区',city:'上海',cnt:2},{name:'上海静安大融城店',reg:'东区',city:'上海',cnt:2},{name:'上海雷士德店',reg:'东区',city:'上海',cnt:2},{name:'无锡恒隆66',reg:'东区',city:'无锡',cnt:2},{name:'合肥瑶海天地店',reg:'东区',city:'合肥',cnt:1},{name:'成都铁像寺水街',reg:'西区',city:'成都',cnt:1},{name:'杭州西溪天街',reg:'东区',city:'杭州',cnt:1},{name:'杭州滨江天街',reg:'东区',city:'杭州',cnt:1},{name:'杭州大悦城',reg:'东区',city:'杭州',cnt:1},{name:'杭州亲橙Park',reg:'东区',city:'杭州',cnt:1},{name:'嘉兴南湖天地',reg:'东区',city:'嘉兴',cnt:1},{name:'宁波万象汇店',reg:'东区',city:'宁波',cnt:1},{name:'南京中央店',reg:'东区',city:'南京',cnt:1},{name:'南京河西金地1F店',reg:'东区',city:'南京',cnt:1},{name:'南京新城市广场店',reg:'东区',city:'南京',cnt:1},{name:'南京江北虹悦城店',reg:'东区',city:'南京',cnt:1},{name:'南京雨花客厅店',reg:'东区',city:'南京',cnt:1},{name:'南京玄武花园城店',reg:'东区',city:'南京',cnt:1}
+            ],
+            'TDS值记录': [
+                {name:'北京尚东数字谷',reg:'北区',city:'北京',cnt:2},{name:'上海长寿路旭辉1F',reg:'东区',city:'上海',cnt:2},{name:'上海凯德晶萃',reg:'东区',city:'上海',cnt:2},{name:'上海中环百联店',reg:'东区',city:'上海',cnt:2},{name:'上海西郊百联',reg:'东区',city:'上海',cnt:2},{name:'苏州吴江万象汇1F',reg:'东区',city:'苏州',cnt:2},{name:'上海愚园路',reg:'东区',city:'上海',cnt:2},{name:'上海长宁国际',reg:'东区',city:'上海',cnt:2},{name:'上海环宇城店',reg:'东区',city:'上海',cnt:2},{name:'上海百联世纪',reg:'东区',city:'上海',cnt:2},{name:'杭州城北万象城',reg:'东区',city:'杭州',cnt:1},{name:'上海世博源',reg:'东区',city:'上海',cnt:1},{name:'上海徐家汇书院店',reg:'东区',city:'上海',cnt:1},{name:'上海华山路国贸汇',reg:'东区',city:'上海',cnt:1},{name:'上海张江店',reg:'东区',city:'上海',cnt:1},{name:'上海美罗城',reg:'东区',city:'上海',cnt:1},{name:'上海七宝领展广场',reg:'东区',city:'上海',cnt:1},{name:'上海ITC商场店',reg:'东区',city:'上海',cnt:1},{name:'上海新天地店',reg:'东区',city:'上海',cnt:1},{name:'上海浦东嘉里城',reg:'东区',city:'上海',cnt:1}
+            ],
+            '手柄清洁': [
+                {name:'杭州城北万象城',reg:'东区',city:'杭州',cnt:2},{name:'上海中环百联店',reg:'东区',city:'上海',cnt:2},{name:'上海浦江欢乐颂',reg:'东区',city:'上海',cnt:2},{name:'上海长寿路旭辉1F',reg:'东区',city:'上海',cnt:2},{name:'上海环宇城店',reg:'东区',city:'上海',cnt:2},{name:'上海世博源',reg:'东区',city:'上海',cnt:2},{name:'苏州吴江万象汇1F',reg:'东区',city:'苏州',cnt:2},{name:'上海西郊百联',reg:'东区',city:'上海',cnt:1},{name:'上海张江店',reg:'东区',city:'上海',cnt:1},{name:'上海七宝领展广场',reg:'东区',city:'上海',cnt:1},{name:'上海长宁国际',reg:'东区',city:'上海',cnt:1},{name:'上海美罗城',reg:'东区',city:'上海',cnt:1},{name:'上海愚园路',reg:'东区',city:'上海',cnt:1},{name:'上海凯德晶萃',reg:'东区',city:'上海',cnt:1},{name:'上海华山路国贸汇',reg:'东区',city:'上海',cnt:1},{name:'上海徐家汇书院店',reg:'东区',city:'上海',cnt:1},{name:'上海浦东嘉里城',reg:'东区',city:'上海',cnt:1},{name:'上海百联世纪',reg:'东区',city:'上海',cnt:1},{name:'上海前滩时代广场',reg:'东区',city:'上海',cnt:1},{name:'上海虹桥天地',reg:'东区',city:'上海',cnt:1}
+            ],
+            '新品制作标准': [
+                {name:'北京西单君太',reg:'北区',city:'北京',cnt:2},{name:'北京凤凰汇',reg:'北区',city:'北京',cnt:2},{name:'北京金地中心',reg:'北区',city:'北京',cnt:2},{name:'北京尚东数字谷',reg:'北区',city:'北京',cnt:2},{name:'上海宝山天街店',reg:'东区',city:'上海',cnt:2},{name:'上海苏河湾万象天地',reg:'东区',city:'上海',cnt:1},{name:'宁波来福士',reg:'东区',city:'宁波',cnt:1},{name:'上海华山路国贸汇',reg:'东区',city:'上海',cnt:1},{name:'上海中环百联店',reg:'东区',city:'上海',cnt:1},{name:'上海前滩时代广场',reg:'东区',city:'上海',cnt:1},{name:'上海龙华会店',reg:'东区',city:'上海',cnt:1},{name:'上海长宁来福士',reg:'东区',city:'上海',cnt:1},{name:'上海百联世纪',reg:'东区',city:'上海',cnt:1},{name:'上海世纪汇',reg:'东区',city:'上海',cnt:1},{name:'上海美罗城',reg:'东区',city:'上海',cnt:1},{name:'杭州来福士',reg:'东区',city:'杭州',cnt:1},{name:'杭州萧山万象汇',reg:'东区',city:'杭州',cnt:1},{name:'上海豫园悦宾楼店',reg:'东区',city:'上海',cnt:1},{name:'上海七宝领展广场',reg:'东区',city:'上海',cnt:1},{name:'上海张江店',reg:'东区',city:'上海',cnt:1}
+            ],
+            '培训资料完整': [
+                {name:'北京华贸广场',reg:'北区',city:'北京',cnt:1},{name:'北京西单君太',reg:'北区',city:'北京',cnt:1},{name:'北京东方广场',reg:'北区',city:'北京',cnt:1},{name:'北京三里屯',reg:'北区',city:'北京',cnt:1},{name:'北京国贸3店',reg:'北区',city:'北京',cnt:1},{name:'北京太阳宫凯德',reg:'北区',city:'北京',cnt:1},{name:'北京金地中心',reg:'北区',city:'北京',cnt:1},{name:'北京大族广场',reg:'北区',city:'北京',cnt:1},{name:'杭州城北万象城',reg:'东区',city:'杭州',cnt:1},{name:'杭州嘉里中心',reg:'东区',city:'杭州',cnt:1},{name:'杭州萧山万象汇',reg:'东区',city:'杭州',cnt:1},{name:'杭州天目里',reg:'东区',city:'杭州',cnt:1},{name:'杭州来福士',reg:'东区',city:'杭州',cnt:1},{name:'杭州远洋乐堤港',reg:'东区',city:'杭州',cnt:1},{name:'杭州滨江天街',reg:'东区',city:'杭州',cnt:1},{name:'杭州西溪天街',reg:'东区',city:'杭州',cnt:1},{name:'杭州亲橙Park',reg:'东区',city:'杭州',cnt:1},{name:'杭州大悦城',reg:'东区',city:'杭州',cnt:1},{name:'上海长风大悦城',reg:'东区',city:'上海',cnt:1},{name:'上海凯德晶萃',reg:'东区',city:'上海',cnt:1}
+            ],
+            '自动填压器清洁': [
+                {name:'上海长寿路旭辉1F',reg:'东区',city:'上海',cnt:2},{name:'杭州城北万象城',reg:'东区',city:'杭州',cnt:2},{name:'上海中环百联店',reg:'东区',city:'上海',cnt:2},{name:'上海浦江欢乐颂',reg:'东区',city:'上海',cnt:2},{name:'上海七宝领展广场',reg:'东区',city:'上海',cnt:2},{name:'上海世博源',reg:'东区',city:'上海',cnt:2},{name:'上海环宇城店',reg:'东区',city:'上海',cnt:2},{name:'上海凯德晶萃',reg:'东区',city:'上海',cnt:1},{name:'上海西郊百联',reg:'东区',city:'上海',cnt:1},{name:'上海苏河湾万象天地',reg:'东区',city:'上海',cnt:1},{name:'上海张江店',reg:'东区',city:'上海',cnt:1},{name:'上海美罗城',reg:'东区',city:'上海',cnt:1},{name:'上海愚园路',reg:'东区',city:'上海',cnt:1},{name:'上海华山路国贸汇',reg:'东区',city:'上海',cnt:1},{name:'上海徐家汇书院店',reg:'东区',city:'上海',cnt:1},{name:'上海浦东嘉里城',reg:'东区',city:'上海',cnt:1},{name:'上海百联世纪',reg:'东区',city:'上海',cnt:1},{name:'上海前滩时代广场',reg:'东区',city:'上海',cnt:1},{name:'上海虹桥天地',reg:'东区',city:'上海',cnt:1},{name:'上海长宁国际',reg:'东区',city:'上海',cnt:1}
+            ]
+        };
+
+        const regionColor = {北区:'#A65D57',东区:'#2B6CB0',西区:'#C9A962',南区:'#5B8C6A'};
+
+        // 左图
+        const chart = echarts.init(document.getElementById('chart-item'));
+        chart.setOption({
+            tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:p=>p[0].name+'<br/>涉及门店'+p[0].value+'家·累计'+p[0].data.hits+'次'},
+            grid:{left:5,right:20,bottom:3,top:3,containLabel:true},
+            xAxis:{type:'value',axisLabel:{fontSize:8}},
+            yAxis:{type:'category',data:itemData.map(d=>d.name).reverse(),axisLabel:{fontSize:8,width:120,overflow:'truncate'}},
+            series:[{
+                data:itemData.map(d=>({value:d.stores,hits:d.hits})).reverse(),
+                type:'bar',barWidth:'55%',
+                label:{show:true,position:'right',fontSize:8,formatter:p=>p.value+'家·'+p.data.hits+'次'},
+                itemStyle:{color:C.blue,borderRadius:[0,3,3,0],opacity:0.85},
+                emphasis:{itemStyle:{color:C.red}}
+            }]
+        });
+
+        let currentItem = '蒸汽棒干净且无垢？';
+
+        chart.on('click', function(params) {
+            currentItem = params.name;
+            document.getElementById('store-title').textContent = '涉及门店 · ' + currentItem;
+            updateStoreTable(currentItem);
+            chart.dispatchAction({type:'downplay'});
+            chart.dispatchAction({type:'highlight',name:params.name});
+        });
+
+        function updateStoreTable(item) {
+            const stores = storeMap[item] || [];
+            const tbody = document.getElementById('store-table-body');
+            document.getElementById('store-count').textContent = '共 ' + stores.length + ' 家门店';
+            tbody.innerHTML = '';
+            stores.forEach(function(s) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td style="padding:0.3rem 0.5rem;">' + s.name + '</td>' +
+                    '<td style="padding:0.3rem 0.5rem;"><span style="color:' + (regionColor[s.reg]||'#666') + ';font-weight:600;">' + s.reg + '</span></td>' +
+                    '<td style="padding:0.3rem 0.5rem;">' + s.city + '</td>' +
+                    '<td style="padding:0.3rem 0.5rem;text-align:center;font-weight:600;">' + s.cnt + '次</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        updateStoreTable('蒸汽棒干净且无垢？');
+        window.addEventListener('resize',()=>chart.resize());
+    </script>
+</body>
+</html>

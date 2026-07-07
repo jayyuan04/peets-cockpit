@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6月运营驾驶舱</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../echarts.min.js"></script>
+    <style>
+        .cockpit-grid { display:grid; gap:0.6rem; height:100%; grid-template-rows: auto auto 1fr auto auto; }
+        .kpi-row { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:0.6rem; }
+        .kpi-card { background:var(--card-bg); border-radius:10px; padding:0.8rem 1rem; border-left:4px solid; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+        .kpi-card .kpi-label { font-size:0.7rem; color:var(--text-muted); margin-bottom:0.2rem; }
+        .kpi-card .kpi-value { font-size:2rem; font-weight:700; line-height:1.1; }
+        .kpi-card .kpi-sub { font-size:0.65rem; color:var(--text-secondary); margin-top:0.2rem; }
+        .kpi-card .kpi-delta { font-size:0.7rem; margin-left:0.4rem; }
+        .kpi-card .kpi-trend { font-size:0.6rem; color:var(--text-muted); margin-top:0.1rem; }
+        .kpi-red { border-left-color:var(--accent-red); }
+        .kpi-gold { border-left-color:var(--coffee-gold); }
+        .kpi-green { border-left-color:var(--accent-green); }
+        .alert-banner { background:var(--accent-red); color:#fff; border-radius:8px; padding:0.5rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+        .alert-banner a { color:#fff; text-decoration:underline; opacity:0.9; cursor:pointer; }
+        .alert-banner a:hover { opacity:1; }
+        .nav-bar { display:grid; grid-template-columns:repeat(4,1fr); gap:0.5rem; }
+        .nav-btn-page { background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; padding:0.5rem; text-align:center; cursor:pointer; font-size:0.7rem; color:var(--text-secondary); transition:all 0.15s; text-decoration:none; }
+        .nav-btn-page:hover { border-color:var(--coffee-gold); color:var(--coffee-dark); background:var(--coffee-cream); }
+        .nav-btn-page .nav-icon { font-size:1.2rem; display:block; margin-bottom:0.2rem; }
+        .nav-btn-page .nav-label { font-weight:600; }
+        .nav-btn-page .nav-desc { font-size:0.6rem; color:var(--text-muted); }
+        .risk-indicators { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0.5rem; }
+        .risk-tile { border-radius:8px; padding:0.5rem 0.7rem; font-size:0.65rem; cursor:pointer; }
+        .risk-tile .risk-count { font-size:1.1rem; font-weight:700; }
+        .risk-high { background:rgba(166,93,87,0.12); border:1px solid rgba(166,93,87,0.3); }
+        .risk-mid { background:rgba(201,169,98,0.12); border:1px solid rgba(201,169,98,0.3); }
+        .risk-low { background:rgba(91,140,106,0.12); border:1px solid rgba(91,140,106,0.3); }
+        .chart-trio { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.6rem; flex:1; min-height:0; }
+        .chart-trio-item { background:var(--card-bg); border-radius:8px; padding:0.5rem; border:1px solid var(--border-light); display:flex; flex-direction:column; }
+        .chart-trio-item .chart-label { font-size:0.65rem; color:var(--text-muted); margin-bottom:0.2rem; flex-shrink:0; }
+        .chart-trio-item .chart-container { flex:1; min-height:0; }
+    </style>
+</head>
+<body class="slide-page">
+    <div class="slide">
+        <div class="slide-header" style="margin-bottom:0.5rem;padding-bottom:0.5rem;">
+            <h1 class="slide-title" style="font-size:1.5rem;">6月运营驾驶舱</h1>
+            <p class="slide-subtitle" style="font-size:0.7rem;">数据来源：海康云眸 | 覆盖：2026年1-6月（115,808条记录）</p>
+        </div>
+
+        <div class="cockpit-grid">
+            <!-- KPI行 -->
+            <div class="kpi-row">
+                <div class="kpi-card kpi-red">
+                    <div class="kpi-label">☕ 品质合格率</div>
+                    <div class="kpi-value">89.0<span style="font-size:0.9rem;">%</span></div>
+                    <div class="kpi-sub">89/100家门店合格 <span class="kpi-delta" style="color:var(--accent-green);">↑ +3.6pct</span></div>
+                    <div class="kpi-trend">1-6月区间83.7%-90.3%，横盘</div>
+                </div>
+                <div class="kpi-card kpi-red">
+                    <div class="kpi-label">🔍 深访不合格率</div>
+                    <div class="kpi-value">10.6<span style="font-size:0.9rem;">%</span></div>
+                    <div class="kpi-sub">1,186/11,180道题不合格 <span class="kpi-delta" style="color:var(--accent-red);">↑ 连续4月≥10%</span></div>
+                    <div class="kpi-trend">从9.1%持续爬升 ⚠️ 需关注</div>
+                </div>
+                <div class="kpi-card kpi-gold">
+                    <div class="kpi-label">📦 上新完成率</div>
+                    <div class="kpi-value">16.4<span style="font-size:0.9rem;">%</span></div>
+                    <div class="kpi-sub">12位AM零上新 <span class="kpi-delta" style="color:var(--accent-red);">↓ -74.9pct</span></div>
+                    <div class="kpi-trend">从91.3%断崖式下跌 ⚠️⚠️</div>
+                </div>
+            </div>
+
+            <!-- 预警横幅 -->
+            <div class="alert-banner">
+                <span>🔴 <b>4家双高风险门店</b> 品质不合格+差评率高，需立即干预</span>
+                <span><a onclick="parent.postMessage('goToSlide:5','*')">查看详情 →</a></span>
+            </div>
+
+            <!-- 趋势图三列 -->
+            <div class="chart-trio">
+                <div class="chart-trio-item">
+                    <div class="chart-label">品质合格率趋势</div>
+                    <div id="chart-quality" class="chart-container"></div>
+                </div>
+                <div class="chart-trio-item">
+                    <div class="chart-label">深访不合格率趋势</div>
+                    <div id="chart-deep" class="chart-container"></div>
+                </div>
+                <div class="chart-trio-item">
+                    <div class="chart-label">上新完成率趋势</div>
+                    <div id="chart-shangxin" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- 中间：关键发现 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.6rem;">
+                <div class="content-section" style="padding:0.5rem 0.7rem;">
+                    <div style="font-size:0.7rem;color:var(--accent-red);font-weight:600;margin-bottom:0.2rem;">☕ 品质核心问题</div>
+                    <div style="font-size:0.65rem;color:var(--text-secondary);line-height:1.5;">
+                        TOP1: 蒸汽棒清洁（128家门店）<br/>
+                        TOP2: 萃取参数（107家门店）<br/>
+                        TOP3: 热饮制作（93家门店）
+                    </div>
+                </div>
+                <div class="content-section" style="padding:0.5rem 0.7rem;">
+                    <div style="font-size:0.7rem;color:var(--accent-red);font-weight:600;margin-bottom:0.2rem;">🔍 深访核心问题</div>
+                    <div style="font-size:0.65rem;color:var(--text-secondary);line-height:1.5;">
+                        TOP1: 门店环境及安全（260家）<br/>
+                        TOP2: 稽核检查（203家）<br/>
+                        TOP3: 全渠道评价（190家）
+                    </div>
+                </div>
+                <div class="content-section" style="padding:0.5rem 0.7rem;">
+                    <div style="font-size:0.7rem;color:var(--coffee-gold);font-weight:600;margin-bottom:0.2rem;">📦 上新紧急行动</div>
+                    <div style="font-size:0.65rem;color:var(--text-secondary);line-height:1.5;">
+                        12位AM零上新<br/>
+                        从91.3%断崖至16.4%<br/>
+                        建议7月设50%恢复目标
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部：风险指标 + 导航 -->
+            <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:0.6rem;">
+                <div class="risk-indicators">
+                    <div class="risk-tile risk-high" onclick="parent.postMessage('goToSlide:5','*')" title="点击查看详情">
+                        <div class="risk-count">4</div>
+                        <div>双高风险门店</div>
+                        <div style="font-size:0.55rem;color:var(--text-muted);">品质+差评双高</div>
+                    </div>
+                    <div class="risk-tile risk-high" onclick="parent.postMessage('goToSlide:4','*')" title="点击查看详情">
+                        <div class="risk-count">12</div>
+                        <div>零上新AM</div>
+                        <div style="font-size:0.55rem;color:var(--text-muted);">6月未执行上新</div>
+                    </div>
+                    <div class="risk-tile risk-mid" onclick="parent.postMessage('goToSlide:3','*')" title="点击查看详情">
+                        <div class="risk-count">3</div>
+                        <div>深访持续落后AM</div>
+                        <div style="font-size:0.55rem;color:var(--text-muted);">连续3月<80%</div>
+                    </div>
+                    <div class="risk-tile risk-mid" onclick="parent.postMessage('goToSlide:2','*')" title="点击查看详情">
+                        <div class="risk-count">2</div>
+                        <div>核心问题</div>
+                        <div style="font-size:0.55rem;color:var(--text-muted);">蒸汽棒+环境安全</div>
+                    </div>
+                </div>
+                <div class="nav-bar">
+                    <div class="nav-btn-page" onclick="parent.postMessage('goToSlide:2','*')">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-label">品质下钻</span>
+                        <span class="nav-desc">点击问题看门店</span>
+                    </div>
+                    <div class="nav-btn-page" onclick="parent.postMessage('goToSlide:3','*')">
+                        <span class="nav-icon">⚠️</span>
+                        <span class="nav-label">风险预警</span>
+                        <span class="nav-desc">运营风险筛选</span>
+                    </div>
+                    <div class="nav-btn-page" onclick="parent.postMessage('goToSlide:4','*')">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">AM效能</span>
+                        <span class="nav-desc">热力图诊断</span>
+                    </div>
+                    <div class="nav-btn-page" onclick="parent.postMessage('goToSlide:5','*')">
+                        <span class="nav-icon">🗺️</span>
+                        <span class="nav-label">风险地图</span>
+                        <span class="nav-desc">品质×差评关联</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-footer" style="margin-top:0.3rem;padding-top:0.3rem;"><span class="slide-number">6月运营驾驶舱 · 点击导航按钮进入详情页</span></div>
+    </div>
+
+    <script>
+        const months = ['1月','2月','3月','4月','5月','6月'];
+        const C = { blue:'#2B6CB0', red:'#A65D57', gold:'#C9A962', green:'#5B8C6A', dark:'#3D3330' };
+
+        const chartStyle = { grid: {left:5,right:5,top:8,bottom:5}, tooltip:{trigger:'axis',formatter:p=>p[0].name+'<br/>'+p[0].value+'%'} };
+
+        // 品质合格率
+        const qc = echarts.init(document.getElementById('chart-quality'));
+        qc.setOption({...chartStyle,
+            xAxis:{type:'category',data:months,axisLabel:{fontSize:6}},
+            yAxis:{type:'value',min:80,max:95,splitLine:{lineStyle:{type:'dashed',opacity:0.2}},axisLabel:{fontSize:6,formatter:'{value}%'}},
+            series:[{data:[90.3,83.7,88.4,84.9,85.4,89.0],type:'line',smooth:true,symbol:'circle',
+                lineStyle:{color:C.blue,width:2},itemStyle:{color:C.blue},
+                areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(43,108,176,0.25)'},{offset:1,color:'rgba(43,108,176,0.01)'}]}},
+                markLine:{silent:true,data:[{yAxis:90,label:{formatter:'90%',fontSize:6,color:C.red}}],lineStyle:{color:C.red,type:'dashed',width:1,opacity:0.6}}
+            }]
+        });
+
+        // 深访不合格率
+        const dc = echarts.init(document.getElementById('chart-deep'));
+        dc.setOption({...chartStyle,
+            xAxis:{type:'category',data:months,axisLabel:{fontSize:6}},
+            yAxis:{type:'value',min:7,max:13,splitLine:{lineStyle:{type:'dashed',opacity:0.2}},axisLabel:{fontSize:6,formatter:'{value}%'}},
+            series:[{data:[9.1,8.7,11.1,9.9,10.1,10.6],type:'line',smooth:true,symbol:'diamond',
+                lineStyle:{color:C.red,width:2},itemStyle:{color:C.red},
+                areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(166,93,87,0.25)'},{offset:1,color:'rgba(166,93,87,0.01)'}]}},
+                markLine:{silent:true,data:[{yAxis:10,label:{formatter:'警戒10%',fontSize:6,color:C.red}}],lineStyle:{color:C.red,type:'dashed',width:1,opacity:0.6}}
+            }]
+        });
+
+        // 上新完成率
+        const sc = echarts.init(document.getElementById('chart-shangxin'));
+        sc.setOption({...chartStyle,
+            xAxis:{type:'category',data:months,axisLabel:{fontSize:6}},
+            yAxis:{type:'value',min:0,max:100,splitLine:{lineStyle:{type:'dashed',opacity:0.2}},axisLabel:{fontSize:6,formatter:'{value}%'}},
+            series:[{data:[81.5,90.7,91.3,76.3,28.1,16.4],type:'bar',barWidth:'35%',
+                itemStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:C.gold},{offset:1,color:'#D4B896'}]},borderRadius:[3,3,0,0]},
+                label:{show:true,position:'top',fontSize:7,formatter:'{c}%'}
+            }]
+        });
+
+        window.addEventListener('resize',()=>{qc.resize();dc.resize();sc.resize();});
+
+        // 监听父页面跳转消息
+        window.addEventListener('message', function(e) {
+            if (e.data && typeof e.data === 'string' && e.data.startsWith('goToSlide:')) {
+                // 父页面 script.js 会处理
+            }
+        });
+    </script>
+</body>
+</html>
